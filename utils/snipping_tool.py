@@ -1,10 +1,8 @@
-import sys
+import sys, cv2, os
 from PyQt5 import QtWidgets, QtCore, QtGui
-import tkinter as tk
 from PIL import ImageGrab
 import numpy as np
-import cv2
-
+import tkinter as tk
 
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
@@ -48,12 +46,19 @@ class MyWidget(QtWidgets.QWidget):
         y2 = max(self.begin.y(), self.end.y())
 
         img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
-        img.save('capture.png')
+
+        # Check if capture.png already exists. If it does, increment the filename by 1.
+        i = 0
+        while os.path.isfile(f'screenshots/capture{i}.png'):
+            i += 1
+        img.save(f'screenshots/capture{i}.png')
+        
         img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 
-        cv2.imshow('Captured Image', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # # Show the captured image and close the window if user presses any key
+        # cv2.imshow('Captured Image', img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

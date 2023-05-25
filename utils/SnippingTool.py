@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from PIL import ImageGrab
 from PyQt5 import QtWidgets, QtCore, QtGui
-import SnippingMenu
+import utils.SnippingMenu as SnippingMenu
 from PyQt5.QtCore import Qt
 
 
