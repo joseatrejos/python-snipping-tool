@@ -2,3 +2,4 @@ Pillow
 # tkinter
 PyQt5
 opencv-python
+pyautogui
