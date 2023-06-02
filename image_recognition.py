@@ -8,19 +8,17 @@ def find_images_on_screen(images):
 
     while True:
 
-        # Reload Images if Debugging
+        # Start: Reload Images if Debugging
         images = load_images()
-        # Load the target images
         target_images = [Image.open(f"screenshots/{images}") for images in images]
+        # End Debugging
 
-        # Capture the screen
-        screen_image = pyautogui.screenshot()
         found_image = False
 
         for index, target_image in enumerate(target_images):
 
             # Search for the target image on the screen
-            location = pyautogui.locate(target_image, screen_image, grayscale=True)
+            location = pyautogui.locateOnScreen(target_image)
 
             # If image is found
             if location is not None:
