@@ -4,7 +4,7 @@ from PyQt5.QtCore import QPoint, Qt, QRect
 from PyQt5.QtWidgets import QAction, QMainWindow, QApplication, QPushButton, QMenu, QFileDialog
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
 
-import utils.SnippingTool as SnippingTool
+import SnippingTool as SnippingTool
 
 
 class Menu(QMainWindow):
