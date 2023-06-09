@@ -1,5 +1,5 @@
 Pillow
-# tkinter
+tk
 PyQt5
 opencv-python
 pyautogui
