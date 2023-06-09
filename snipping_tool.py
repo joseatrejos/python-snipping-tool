@@ -3,10 +3,11 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PIL import ImageGrab
 import numpy as np
 import tkinter as tk
+import main as main
 
 class MyWidget(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super(MyWidget, self).__init__()
         root = tk.Tk()
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
@@ -14,12 +15,14 @@ class MyWidget(QtWidgets.QWidget):
         self.setWindowTitle(' ')
         self.begin = QtCore.QPoint()
         self.end = QtCore.QPoint()
+        self.parent = parent
+
+    def start(self):
         self.setWindowOpacity(0.3)
         QtWidgets.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.CrossCursor)
         )
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        print('Capture the screen...')
         self.show()
 
     def paintEvent(self, event):
@@ -38,6 +41,7 @@ class MyWidget(QtWidgets.QWidget):
         self.update()
 
     def mouseReleaseEvent(self, event):
+        QtWidgets.QApplication.restoreOverrideCursor()
         self.close()
 
         x1 = min(self.begin.x(), self.end.x())
@@ -52,18 +56,15 @@ class MyWidget(QtWidgets.QWidget):
         while os.path.isfile(f'screenshots/capture{i}.png'):
             i += 1
         img.save(f'screenshots/capture{i}.png')
-        
+        image_path = f'screenshots/capture{i}.png'
         img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 
-        # # Show the captured image and close the window if user presses any key
-        # cv2.imshow('Captured Image', img)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        window = main.MyMainWindow(image_path)
 
 
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    window = MyWidget()
-    window.show()
-    app.aboutToQuit.connect(app.deleteLater)
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QtWidgets.QApplication(sys.argv)
+#     window = MyWidget()
+#     window.show()
+#     app.aboutToQuit.connect(app.deleteLater)
+#     sys.exit(app.exec_())
