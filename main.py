@@ -1,6 +1,6 @@
 import math
 import sys
-from PyQt5.QtWidgets import QAction, QApplication, QMainWindow, QPushButton, QWidget, QMenu, QHBoxLayout, QVBoxLayout, QLabel, QMessageBox
+from PyQt5.QtWidgets import QAction, QApplication, QMainWindow, QInputDialog, QPushButton, QWidget, QMenu, QHBoxLayout, QVBoxLayout, QLabel, QMessageBox, QButtonGroup, QRadioButton
 from PyQt5.QtGui import QPalette, QColor, QPixmap, QFont, QImage
 from PyQt5.QtCore import Qt
 import os
@@ -8,6 +8,7 @@ import subprocess
 import keyboard
 import threading
 from image_recognition import run_script
+from utils.export_script import export_script
 
 from utils.script_validations import validate_script, exist_script
 from utils.screenshots_validations import validate_folder, exist_folder
@@ -21,15 +22,18 @@ class MyMainWindow(QMainWindow):
 
         self.image_path = image_path
         self.title = MyMainWindow.default_title
+        self.action = ''
         self.setGeometry(200, 200, 500, 300)
         keyboard.on_press_key('q', self.stop_process)
 
-        # Crear acciones de menús
         edit_process = QAction('Edit process', self)
         edit_process.triggered.connect(self.edit_process_clicked)
 
         erase_process = QAction('Erase process', self)
         erase_process.triggered.connect(self.erase_process_clicked)
+
+        export_process = QAction('Export process', self)
+        export_process.triggered.connect(self.export_process_clicked)
 
         open_folder = QAction('Open folder', self)
         open_folder.triggered.connect(self.open_folder_clicked)
@@ -37,16 +41,15 @@ class MyMainWindow(QMainWindow):
         erase_images = QAction('Erase images', self)
         erase_images.triggered.connect(self.erase_images_clicked)
 
-        # Crear menús
         process_menu = QMenu('Process', self)
         process_menu.addAction(edit_process)
         process_menu.addAction(erase_process)
+        process_menu.addAction(export_process)
 
         images_menu = QMenu('Images', self)
         images_menu.addAction(open_folder)
         images_menu.addAction(erase_images)
 
-        # Agregar el menú a la barra de menú
         menu_bar = self.menuBar()
         menu_bar.addMenu(process_menu)
         menu_bar.addMenu(images_menu)
@@ -58,19 +61,53 @@ class MyMainWindow(QMainWindow):
 
         self.section1 = QVBoxLayout()
         self.image_label = QLabel()
+
+        actions = QHBoxLayout()
         
         if image_path is not None:
             self.image = QPixmap(image_path)
+
+            self.button_group = QButtonGroup(self)
+            self.button_group.setExclusive(True)
+
+            button1 = QPushButton("Right click")
+            button2 = QPushButton("Double click")
+            button3 = QPushButton("Text")
+            button4 = QPushButton("From Json")
+            button5 = QPushButton("Get API")
+
+            button1.clicked.connect(self.toggle_button)
+            button2.clicked.connect(self.toggle_button)
+            button3.clicked.connect(self.toggle_button)
+            button4.clicked.connect(self.toggle_button)
+            button5.clicked.connect(self.toggle_button)
+
+            self.button_group.addButton(button1)
+            self.button_group.addButton(button2)
+            self.button_group.addButton(button3)
+            self.button_group.addButton(button4)
+            self.button_group.addButton(button5)
+
+            actions.addWidget(button1)
+            actions.addWidget(button2)
+            actions.addWidget(button3)
+            actions.addWidget(button4)
+            actions.addWidget(button5)
+
+            button1.click()
+            button2.click()
+            button3.click()
+            button4.click()
+            button5.click()
+            button1.click()
         else:
             self.image = QPixmap("media/automatizacion.png") 
         self.image_label.setPixmap(self.image)
         self.image_label.setAlignment(Qt.AlignCenter)
         self.section1.addWidget(self.image_label)
 
-        # Crear la segunda sección vertical
         section2 = QHBoxLayout()
 
-        # Crear los buttones
         button1 = QPushButton("Initialize process")
         button1.clicked.connect(self.initialize_process_clicked)
         button1.setFixedHeight(30)
@@ -83,13 +120,18 @@ class MyMainWindow(QMainWindow):
         button2.setFont(QFont("MS Shell Dlg", 10))
         section2.addWidget(button2)
 
-        # Agregar las secciones al layout principal
         main_layout.addLayout(self.section1)
+        main_layout.addLayout(actions)
         main_layout.addLayout(section2)
           
         self.snipping_tool = SnippingTool.MyWidget(self)
         self.initialize = False
         self.show()
+
+    def toggle_button(self):
+        button = self.sender()
+        button.setCheckable(True)
+        self.action = button.text()
 
     def initialize_process_clicked(self):
         exist_folder(self, 'scripts')
@@ -109,17 +151,18 @@ class MyMainWindow(QMainWindow):
 
             
     def infinite_loop(self):
+        iteration = 0
         while self.initialize:
             file = open('scripts/script.txt', 'r')
             script = file.read()
-            run_script(script)
+            if run_script(script, iteration):
+                self.initialize = False
+            iteration += 1
         self.show()
 
     def stop_process(self, event):
         if event.event_type == 'down' and event.name == "q" and keyboard.is_pressed('ctrl'):
-            self.initialize = False
-            print("Closing...")
-               
+            self.initialize = False               
 
     def automate_new_process_clicked(self):
         exist_folder(self, 'scripts')
@@ -154,7 +197,25 @@ class MyMainWindow(QMainWindow):
                     y = math.floor(y - ((label_height - img_heigth)/2 + y_label + 20))
 
                     with open('scripts/script.txt', 'a') as file:
-                        file.write(f'{self.image_path}|{x}|{y}\n')
+                        if self.action == 'Text' or self.action == 'From Json':
+                            text, ok = QInputDialog.getText(self, 'Input', 'Text:')
+                            if ok:
+                                file.write(f'{self.image_path}|{x}|{y}|{self.action}|{text}\n')
+                            else:
+                                return
+                        elif self.action == 'Get API':
+                            api, ok = QInputDialog.getText(self, 'Input', 'API:')
+                            if ok:
+                                with open('scripts/script.txt', 'r') as file:
+                                    content = file.read()
+                                    new_content = f'{self.image_path}|{x}|{y}|{self.action}|{api}\n' + content
+
+                                    with open('scripts/script.txt', 'w') as file:
+                                        file.write(new_content)
+                            else:
+                                return
+                        else:
+                            file.write(f'{self.image_path}|{x}|{y}|{self.action}\n')
 
                     message = "Automated step saved successfully"
                     QMessageBox.information(self, "Alert", message)
@@ -186,6 +247,20 @@ class MyMainWindow(QMainWindow):
             except OSError:
                 message = "Error deleting script."
                 QMessageBox.warning(self, "Alert", message, QMessageBox.Ok)
+
+    def export_process_clicked(self):
+        exist_folder(self, 'scripts')
+        file_path = validate_script(self, 'scripts/script.txt')
+        folder_path = validate_folder(self, 'screenshots')
+
+        if file_path and folder_path:
+            file = open('scripts/script.txt', 'r')
+            script = file.read()
+            file_name, ok = QInputDialog.getText(self, 'Input', 'Script name:')
+            if ok:
+                export_script(script, file_name)
+            else:
+                return
 
     def open_folder_clicked(self):
         folder = validate_folder(self, 'screenshots')
