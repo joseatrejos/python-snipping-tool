@@ -70,35 +70,41 @@ class MyMainWindow(QMainWindow):
             self.button_group = QButtonGroup(self)
             self.button_group.setExclusive(True)
 
-            button1 = QPushButton("Right click")
+            button1 = QPushButton("Click")
             button2 = QPushButton("Double click")
             button3 = QPushButton("Text")
-            button4 = QPushButton("From Json")
-            button5 = QPushButton("Get API")
+            button4 = QPushButton("Delete")
+            button5 = QPushButton("From Json")
+            button6 = QPushButton("Get API")
 
             button1.clicked.connect(self.toggle_button)
             button2.clicked.connect(self.toggle_button)
             button3.clicked.connect(self.toggle_button)
             button4.clicked.connect(self.toggle_button)
             button5.clicked.connect(self.toggle_button)
+            button6.clicked.connect(self.toggle_button)
 
             self.button_group.addButton(button1)
             self.button_group.addButton(button2)
             self.button_group.addButton(button3)
             self.button_group.addButton(button4)
             self.button_group.addButton(button5)
+            self.button_group.addButton(button6)
+
 
             actions.addWidget(button1)
             actions.addWidget(button2)
             actions.addWidget(button3)
             actions.addWidget(button4)
             actions.addWidget(button5)
+            actions.addWidget(button6)
 
             button1.click()
             button2.click()
             button3.click()
             button4.click()
             button5.click()
+            button6.click()
             button1.click()
         else:
             self.image = QPixmap("media/automatizacion.png") 
@@ -258,7 +264,9 @@ class MyMainWindow(QMainWindow):
             script = file.read()
             file_name, ok = QInputDialog.getText(self, 'Input', 'Script name:')
             if ok:
-                export_script(script, file_name)
+                file_path = export_script(script, file_name)
+                folder = os.path.dirname(os.path.abspath(file_path))
+                os.startfile(folder)
             else:
                 return
 

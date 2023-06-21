@@ -35,7 +35,7 @@ def run_script(script, iteration):
                 pyautogui.moveTo(x, y, duration=1)
                 time.sleep(.5)
 
-                if action == 'Right click':
+                if action == 'Click':
                     pyautogui.click()
                 elif action == 'Double click':
                     pyautogui.doubleClick()
@@ -43,10 +43,16 @@ def run_script(script, iteration):
                     pyautogui.click()
                     pyautogui.typewrite(image_x_y_action[4])
                     pyautogui.press('enter')
+                elif action == 'Delete':
+                    pyautogui.click()
+                    pyautogui.press('backspace')
+                    pyautogui.press('enter')
                 elif action == "From Json":
                     pyautogui.click()
                     
-                    if iteration <= len(json_data):
+                    if iteration < len(json_data):
+                        print(len(json_data))
+                        print(iteration)
                         sale = json_data[iteration]
                         
                         json_key = image_x_y_action[4]
@@ -68,5 +74,25 @@ def request_get(url):
         response.raise_for_status()
         json_data = response.json()
         return json_data
-    except requests.exceptions.RequestException as e:
-        print("Error", e)
+    except requests.exceptions.RequestException as error:
+        print(error)
+        files={}
+        headers = {"Content-Type": "application/json"}
+        url = 'https://discord.com/api/webhooks/1120868077882593291/MsA5EBTCQy1yvViUbAttF997VuEyRN0FRUBoN_BiN4Owe6HA0P7plCII9cxV57x-jrV_'
+        webhook_data = {'url': url, 'files': files, 'headers': headers}
+
+        send_message_to_webhook(webhook_data, f"**Request error**", "No response received from the server (json expected)", {error}, 0xFF0000)
+
+
+def send_message_to_webhook(webhook_data, content, embed_title, embed_description="", embed_color=0x00FF00):
+    payload={
+        "content": content,
+        "embeds": [
+            {
+                "title": embed_title,
+                "description": embed_description,
+                "color": embed_color
+            }
+        ]
+    }
+    requests.request("POST", webhook_data['url'], headers=webhook_data['headers'], data=json.dumps(payload), files=webhook_data['files'])
