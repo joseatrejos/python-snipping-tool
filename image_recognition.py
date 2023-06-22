@@ -48,11 +48,8 @@ def run_script(script, iteration):
                     pyautogui.press('backspace')
                     pyautogui.press('enter')
                 elif action == "From Json":
-                    pyautogui.click()
                     
                     if iteration < len(json_data):
-                        print(len(json_data))
-                        print(iteration)
                         sale = json_data[iteration]
                         
                         json_key = image_x_y_action[4]
@@ -64,7 +61,9 @@ def run_script(script, iteration):
 
                         pyautogui.click()
                         pyautogui.typewrite(str(sale))
-                        pyautogui.press('enter')    
+                        pyautogui.press('enter')
+                    else:
+                        return False    
 
                 image_found = True
 

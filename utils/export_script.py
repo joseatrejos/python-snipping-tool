@@ -25,11 +25,25 @@ def export_script(script, file_name):
     python_script.write("from PIL import Image\n")
     python_script.write("import requests\n")
     python_script.write("import keyboard\n")
+    python_script.write("import psycopg2\n")
     python_script.write("import json\n\n")
+
+    python_script.write("# If you want to connect to a local database, uncomment\n")
+    python_script.write("# the following lines, complete them with your information\n")
+    python_script.write("# and uncomment get_connection_cursor()\n\n")
+
+    python_script.write("# hostname = \'\'\n")
+    python_script.write("# database = \'\'\n")
+    python_script.write("# username = \'\'\n")
+    python_script.write("# pwd = \'\'\n")
+    python_script.write("# port_id = \'\'\n\n")
 
     python_script.write("def run_script():\n")
 
     steps = script.splitlines()
+    python_script.write(f"    # Uncomment to make querys\n")
+    python_script.write(f"    # conn = get_connection()\n")
+    python_script.write(f"    # cursor = conn.cursor()\n")
 
     if "Get API" in steps[0]:
         url = steps[0].split('|')[4]
@@ -80,7 +94,7 @@ def export_script(script, file_name):
                 python_script.write("                pyautogui.press(\'enter\')\n")
             elif action == "From Json":
                 python_script.write(f"                value = find_key_value(object, \'{image_x_y_action[4]}\')\n")
-                python_script.write("                pyautogui.doubleClick()\n")
+                python_script.write("                pyautogui.click()\n")
                 python_script.write("                pyautogui.typewrite(str(value))\n")
                 python_script.write("                pyautogui.press('enter')\n")
 
@@ -128,7 +142,7 @@ def export_script(script, file_name):
                 python_script.write("            pyautogui.press(\'enter\')\n")
             elif action == "From Json":
                 python_script.write(f"            value = find_key_value(object, \'{image_x_y_action[4]}\')\n")
-                python_script.write("            pyautogui.doubleClick()\n")
+                python_script.write("            pyautogui.click()\n")
                 python_script.write("            pyautogui.typewrite(str(value))\n")
                 python_script.write("            pyautogui.press(\'enter\')\n")
 
@@ -147,8 +161,8 @@ def export_script(script, file_name):
     python_script.write("        headers = {\"Content-Type\": \"application/json\"}\n")
     python_script.write("        url = 'https://discord.com/api/webhooks/1120868077882593291/MsA5EBTCQy1yvViUbAttF997VuEyRN0FRUBoN_BiN4Owe6HA0P7plCII9cxV57x-jrV_'\n")
     python_script.write("        webhook_data = {'url': url, 'files': files, 'headers': headers}\n")
-    python_script.write("        send_message_to_webhook(webhook_data, f\"**Fail request (get)**\", \"Excepted Json\", f\"{e}\", 0xFF0000)\n\n")
-    python_script.write("        return False\n")
+    python_script.write("        send_message_to_webhook(webhook_data, f\"**Fail request (get)**\", \"Excepted Json\", f\"{e}\", 0xFF0000)\n")
+    python_script.write("        return False\n\n")
 
     python_script.write("def find_key_value(json_data, json_keys):\n")
     python_script.write("    keys = json_keys.split(\'-\')\n")
@@ -170,6 +184,24 @@ def export_script(script, file_name):
     python_script.write("        ]\n")
     python_script.write("    }\n\n")
     python_script.write("    requests.request(\"POST\", webhook_data[\'url\'], headers=webhook_data[\'headers\'], data=json.dumps(payload), files=webhook_data[\'files\'])\n\n")
+
+    python_script.write("# def get_connection():\n")
+    python_script.write("#     try:\n")
+    python_script.write("#         conn = psycopg2.connect(\n")
+    python_script.write("#             host = hostname,\n")
+    python_script.write("#             dbname = database,\n")
+    python_script.write("#             user = username,\n")
+    python_script.write("#             password = pwd,\n")
+    python_script.write("#             port = port_id)\n")
+    python_script.write("#\n")
+    python_script.write("#         return conn\n")
+    python_script.write("#     except Exception as error:\n")
+    python_script.write("#         payload = {}\n")
+    python_script.write("#         files = {}\n")
+    python_script.write("#         headers = {\"Content-Type\": \"application/json\"}\n")
+    python_script.write("#         url = 'https://discord.com/api/webhooks/1120868077882593291/MsA5EBTCQy1yvViUbAttF997VuEyRN0FRUBoN_BiN4Owe6HA0P7plCII9cxV57x-jrV_'\n")
+    python_script.write("#         webhook_data = {'url': url, 'files': files, 'headers': headers}\n")
+    python_script.write("#         send_message_to_webhook(webhook_data, f\"**Database connection**\", \"Unable to connect the database\", f\"{error}\", 0xFF0000)\n\n")
 
     python_script.write("if __name__ == \'__main__\':\n")
     python_script.write("    run_script()\n\n")

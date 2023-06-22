@@ -161,9 +161,13 @@ class MyMainWindow(QMainWindow):
         while self.initialize:
             file = open('scripts/script.txt', 'r')
             script = file.read()
-            if run_script(script, iteration):
+            continue_script = run_script(script, iteration)
+            if continue_script == True:
                 self.initialize = False
-            iteration += 1
+            elif continue_script == False:
+                iteration = 0
+            elif continue_script is None:
+                iteration += 1
         self.show()
 
     def stop_process(self, event):
